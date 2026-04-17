@@ -25,8 +25,8 @@ const App: React.FC = () => {
         <Route path="/produit/:id" element={<ProductPage />} />
       </Route>
 
-      {/* Login admin (public) */}
-      <Route path="/admin/login" element={<LoginPage />} />
+      {/* Login admin (public) — wildcard pour les sous-routes Clerk (factor-two, sso-callback, etc.) */}
+      <Route path="/admin/login/*" element={<LoginPage />} />
 
       {/* Routes admin protégées */}
       <Route element={<ProtectedRoute />}>

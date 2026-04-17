@@ -28,9 +28,9 @@ export const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onGoHome,
         </button>
 
         {/* Logo - Centered on mobile, Left on desktop */}
-        <div 
-          onClick={onGoHome} 
-          className="font-script text-3xl text-mv-red cursor-pointer select-none hover:scale-105 transition-transform absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-auto"
+        <div
+          onClick={onGoHome}
+          className="font-script text-2xl md:text-3xl text-mv-red cursor-pointer select-none whitespace-nowrap absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:left-auto"
         >
           Boutique MV
         </div>
