@@ -1,0 +1,193 @@
+version: "6.0.0"
+project_name: "boutique-mv"
+project_level: 3
+current_sprint: 1
+sprint_plan_path: "docs/sprint-plan-boutique-mv-2026-03-04.md"
+
+sprints:
+  - sprint_number: 1
+    start_date: "2026-03-04"
+    end_date: "2026-03-18"
+    capacity_points: 30
+    committed_points: 30
+    completed_points: 30
+    status: "completed"
+    goal: "Infrastructure technique (Convex, Clerk, Router, Tailwind) + migration données + layout admin"
+    stories:
+      - story_id: "STORY-007"
+        title: "Installer Tailwind CSS via npm"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-001"
+        title: "Initialiser Convex dans le projet"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-002"
+        title: "Intégrer Clerk pour l'authentification"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-004"
+        title: "Helper d'authentification admin Convex"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-005"
+        title: "Migration données produits vers Convex"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-006"
+        title: "Seed du contenu initial"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-003"
+        title: "Configurer React Router et structure routes"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-008"
+        title: "Layout admin (sidebar + header)"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-030"
+        title: "Composants UI réutilisables"
+        points: 5
+        status: "completed"
+
+  - sprint_number: 2
+    start_date: "2026-03-18"
+    end_date: "2026-04-01"
+    capacity_points: 30
+    committed_points: 31
+    completed_points: 31
+    status: "completed"
+    goal: "CRUD produits complet + catalogue dynamique depuis Convex"
+    stories:
+      - story_id: "STORY-009"
+        title: "Fonctions Convex CRUD produits"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-010"
+        title: "Fonctions Convex CRUD catégories"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-011"
+        title: "Page liste des produits (admin)"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-012"
+        title: "Formulaire création/modification produit"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-013"
+        title: "Upload d'images produit"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-014"
+        title: "Gestionnaire de catégories"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-028"
+        title: "Catalogue dynamique depuis Convex"
+        points: 5
+        status: "completed"
+
+  - sprint_number: 3
+    start_date: "2026-04-01"
+    end_date: "2026-04-15"
+    capacity_points: 30
+    committed_points: 28
+    completed_points: 28
+    status: "completed"
+    goal: "Système de commandes complet + contenu dynamique site vitrine"
+    stories:
+      - story_id: "STORY-015"
+        title: "Fonctions Convex commandes"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-016"
+        title: "Formulaire de commande intégré"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-017"
+        title: "Modification bouton WhatsApp"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-018"
+        title: "Page liste des commandes (admin)"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-019"
+        title: "Page détail commande (admin)"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-029"
+        title: "Contenu dynamique site vitrine"
+        points: 5
+        status: "completed"
+
+  - sprint_number: 4
+    start_date: "2026-04-15"
+    end_date: "2026-04-28"
+    capacity_points: 30
+    committed_points: 28
+    completed_points: 28
+    status: "completed"
+    goal: "Dashboard statistiques + éditeur contenu + fonctionnalités bonus + déploiement"
+    stories:
+      - story_id: "STORY-020"
+        title: "Fonctions Convex contenu"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-021"
+        title: "Page gestion contenu (admin)"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-024"
+        title: "Fonctions Convex statistiques"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-025"
+        title: "Dashboard KPIs + top produits"
+        points: 5
+        status: "completed"
+      - story_id: "STORY-026"
+        title: "Filtrage par période"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-022"
+        title: "Upload image hero"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-EXP-002"
+        title: "Badge nouvelles commandes"
+        points: 2
+        status: "completed"
+      - story_id: "STORY-027"
+        title: "Graphique évolution ventes"
+        points: 3
+        status: "completed"
+      - story_id: "STORY-EXP-001"
+        title: "Export CSV commandes"
+        points: 2
+        status: "completed"
+
+backlog:
+  - story_id: "STORY-023"
+    title: "Bannières promotionnelles"
+    points: 3
+    status: "not_started"
+  - story_id: "STORY-EXP-003"
+    title: "Réordonnancement produits"
+    points: 3
+    status: "not_started"
+
+velocity:
+  sprint_1: 30
+  sprint_2: 31
+  sprint_3: 28
+  sprint_4: 28
+  rolling_average: null
+
+team:
+  size: 1
+  sprint_length_weeks: 2
+  capacity_per_sprint: 30
+  hours_per_day: 6
