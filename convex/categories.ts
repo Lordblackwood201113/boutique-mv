@@ -133,31 +133,16 @@ export const update = mutation({
   },
 });
 
-/** Déplacer une catégorie d'un cran vers le haut ou le bas dans l'ordre d'affichage */
-export const move = mutation({
+/** Persister un nouvel ordre complet pour les catégories (assigne order = 0..N-1) */
+export const reorder = mutation({
   args: {
-    id: v.id("categories"),
-    direction: v.union(v.literal("up"), v.literal("down")),
+    ids: v.array(v.id("categories")),
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
 
-    const all = await ctx.db.query("categories").collect();
-    const sorted = sortByOrder(all);
-
-    const index = sorted.findIndex((c) => c._id === args.id);
-    if (index === -1) throw new Error("Catégorie introuvable.");
-
-    const swapIndex = args.direction === "up" ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= sorted.length) return;
-
-    const reordered = [...sorted];
-    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
-
     await Promise.all(
-      reordered.map((cat, i) =>
-        cat.order === i ? null : ctx.db.patch(cat._id, { order: i })
-      )
+      args.ids.map((id, index) => ctx.db.patch(id, { order: index }))
     );
   },
 });

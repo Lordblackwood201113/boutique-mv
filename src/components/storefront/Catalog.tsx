@@ -3,17 +3,21 @@ import { Product } from '@/types';
 
 interface CatalogProps {
   products: Product[];
+  categories: string[];
   onViewProduct: (product: Product) => void;
 }
 
-export const Catalog: React.FC<CatalogProps> = ({ products, onViewProduct }) => {
+export const Catalog: React.FC<CatalogProps> = ({ products, categories, onViewProduct }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('TOUT');
 
-  // Derive unique categories from products
-  const categories = useMemo(() => {
-    const uniqueCategories = Array.from(new Set(products.map(p => p.category)));
-    return ['TOUT', ...uniqueCategories.sort()];
-  }, [products]);
+  // Use admin-defined category order, plus any orphan categories from products
+  const filterCategories = useMemo(() => {
+    const productCategories = new Set(products.map((p) => p.category));
+    const orphans = Array.from(productCategories)
+      .filter((c) => !categories.includes(c))
+      .sort();
+    return ['TOUT', ...categories, ...orphans];
+  }, [products, categories]);
 
   // Filter products based on selection
   const filteredProducts = useMemo(() => {
@@ -29,7 +33,7 @@ export const Catalog: React.FC<CatalogProps> = ({ products, onViewProduct }) => 
 
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-6 md:gap-10 border-b border-gray-100 pb-6 w-full overflow-x-auto no-scrollbar">
-          {categories.map((category) => (
+          {filterCategories.map((category) => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}

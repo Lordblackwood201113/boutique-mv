@@ -34,8 +34,9 @@ function CatalogSkeleton() {
 export default function CatalogPage() {
   const navigate = useNavigate();
   const products = useQuery(api.products.listStorefront);
+  const categories = useQuery(api.categories.list);
 
-  if (products === undefined) {
+  if (products === undefined || categories === undefined) {
     return <CatalogSkeleton />;
   }
 
@@ -53,6 +54,7 @@ export default function CatalogPage() {
     <div className="animate-fade-in">
       <Catalog
         products={products}
+        categories={categories.map((c) => c.name)}
         onViewProduct={(product) => navigate(`/produit/${product.id}`)}
       />
     </div>

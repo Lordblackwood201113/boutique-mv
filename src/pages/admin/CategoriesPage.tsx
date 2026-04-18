@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
-import { Plus, Pencil, Trash2, Check, X, FolderOpen, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, FolderOpen, ArrowUp, ArrowDown, Save } from 'lucide-react';
 import { Button, ConfirmModal, SkeletonTable } from '@/src/components/ui';
 
 export default function CategoriesPage() {
@@ -10,7 +10,36 @@ export default function CategoriesPage() {
   const createCategory = useMutation(api.categories.create);
   const updateCategory = useMutation(api.categories.update);
   const removeCategory = useMutation(api.categories.remove);
-  const moveCategory = useMutation(api.categories.move);
+  const reorderCategories = useMutation(api.categories.reorder);
+
+  // Local order state for batched reordering
+  const [orderedIds, setOrderedIds] = useState<Id<'categories'>[]>([]);
+  const [savingOrder, setSavingOrder] = useState(false);
+
+  // Sync local order with server: keep user's order for known IDs, append new ones, drop missing
+  useEffect(() => {
+    if (!categories) return;
+    const serverIds = new Set(categories.map((c) => c._id));
+    setOrderedIds((prev) => {
+      const kept = prev.filter((id) => serverIds.has(id));
+      const keptSet = new Set(kept);
+      const additions = categories.filter((c) => !keptSet.has(c._id)).map((c) => c._id);
+      return [...kept, ...additions];
+    });
+  }, [categories]);
+
+  // Reorder server-side categories list to match local order for rendering
+  const orderedCategories = useMemo(() => {
+    if (!categories) return [];
+    const byId = new Map(categories.map((c) => [c._id, c]));
+    return orderedIds.map((id) => byId.get(id)).filter(Boolean) as typeof categories;
+  }, [categories, orderedIds]);
+
+  // Detect pending order changes
+  const hasOrderChanges = useMemo(() => {
+    if (!categories) return false;
+    return categories.some((cat, i) => cat._id !== orderedIds[i]);
+  }, [categories, orderedIds]);
 
   // New category
   const [newName, setNewName] = useState('');
@@ -96,13 +125,29 @@ export default function CategoriesPage() {
     setEditName('');
   };
 
-  const handleMove = async (id: Id<'categories'>, direction: 'up' | 'down') => {
+  const handleMove = (index: number, direction: 'up' | 'down') => {
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= orderedIds.length) return;
+    const next = [...orderedIds];
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+    setOrderedIds(next);
+  };
+
+  const handleSaveOrder = async () => {
+    setSavingOrder(true);
     try {
-      await moveCategory({ id, direction });
+      await reorderCategories({ ids: orderedIds });
+      showToast('Ordre enregistré');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erreur lors du déplacement';
+      const message = err instanceof Error ? err.message : "Erreur lors de l'enregistrement";
       showToast(message, 'error');
+    } finally {
+      setSavingOrder(false);
     }
+  };
+
+  const handleResetOrder = () => {
+    if (categories) setOrderedIds(categories.map((c) => c._id));
   };
 
   if (categories === undefined) {
@@ -126,6 +171,33 @@ export default function CategoriesPage() {
           {categories.length} catégorie{categories.length !== 1 ? 's' : ''}
         </p>
       </div>
+
+      {/* Pending order changes bar */}
+      {hasOrderChanges && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-3 animate-fade-in">
+          <p className="font-sans text-sm text-amber-900">
+            Vous avez modifié l'ordre des catégories. Pensez à enregistrer.
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleResetOrder}
+              disabled={savingOrder}
+            >
+              Annuler
+            </Button>
+            <Button
+              size="sm"
+              icon={<Save size={14} />}
+              onClick={handleSaveOrder}
+              loading={savingOrder}
+            >
+              Enregistrer l'ordre
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Add category inline */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -175,7 +247,7 @@ export default function CategoriesPage() {
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat, index) => (
+              {orderedCategories.map((cat, index) => (
                 <tr
                   key={cat._id}
                   className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
@@ -228,7 +300,7 @@ export default function CategoriesPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <button
-                        onClick={() => handleMove(cat._id, 'up')}
+                        onClick={() => handleMove(index, 'up')}
                         disabled={index === 0}
                         className="p-2 text-gray-400 hover:text-mv-black rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         title="Monter"
@@ -236,8 +308,8 @@ export default function CategoriesPage() {
                         <ArrowUp size={16} />
                       </button>
                       <button
-                        onClick={() => handleMove(cat._id, 'down')}
-                        disabled={index === categories.length - 1}
+                        onClick={() => handleMove(index, 'down')}
+                        disabled={index === orderedCategories.length - 1}
                         className="p-2 text-gray-400 hover:text-mv-black rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         title="Descendre"
                       >
