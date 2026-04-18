@@ -56,8 +56,8 @@ export const Hero: React.FC<HeroProps> = ({ onViewProduct, featuredProduct }) =>
       </div>
 
       {/* Right Image */}
-      <div className="flex-1 relative w-full h-[60vh] md:h-[85vh]">
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-gray-200 rounded-t-[100px] overflow-hidden">
+      <div className="flex-1 relative w-full aspect-[3/4] md:aspect-auto md:h-[85vh]">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-gray-200 rounded-t-[60px] md:rounded-t-[100px] overflow-hidden">
              <img
               src={content.image}
               alt="Esthétique du quotidien"
