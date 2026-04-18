@@ -1,7 +1,25 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Upload, X, ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, X, ImageIcon, Loader2, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 Mo
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -11,23 +29,49 @@ interface ImageUploaderProps {
   onChange: (images: string[]) => void;
 }
 
-function ImagePreview({ storageId, onRemove }: { storageId: string; onRemove: () => void }) {
+function SortableImage({ storageId, onRemove }: { storageId: string; onRemove: () => void }) {
   const url = useQuery(api.products.getImageUrl, { storageId });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: storageId,
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
 
   return (
-    <div className="relative group w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex-shrink-0 touch-none"
+    >
       {url ? (
-        <img src={url} alt="" className="w-full h-full object-cover" />
+        <img src={url} alt="" className="w-full h-full object-cover pointer-events-none" />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           <Loader2 size={16} className="animate-spin text-gray-400" />
         </div>
       )}
+      {/* Drag handle covers the image area */}
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label="Réordonner cette image"
+        className="absolute inset-0 cursor-grab active:cursor-grabbing focus:outline-none"
+      />
+      {/* Grip indicator */}
+      <div className="absolute bottom-1 left-1 p-0.5 bg-black/50 text-white rounded pointer-events-none">
+        <GripVertical size={12} />
+      </div>
       <button
         type="button"
         onClick={onRemove}
         aria-label="Supprimer cette image"
-        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition-colors"
+        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition-colors z-10"
       >
         <X size={12} />
       </button>
@@ -43,6 +87,21 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = images.indexOf(String(active.id));
+    const newIndex = images.indexOf(String(over.id));
+    if (oldIndex === -1 || newIndex === -1) return;
+    onChange(arrayMove(images, oldIndex, newIndex));
+  };
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -127,17 +186,26 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
         Images du produit
       </label>
 
-      {/* Existing images */}
+      {/* Existing images (draggable) */}
       {images.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {images.map((storageId, index) => (
-            <ImagePreview
-              key={storageId}
-              storageId={storageId}
-              onRemove={() => handleRemove(index)}
-            />
-          ))}
-        </div>
+        <>
+          <p className="font-sans text-xs text-gray-500">
+            Glissez-déposez pour réordonner. La première image est mise en avant sur la boutique.
+          </p>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={images} strategy={rectSortingStrategy}>
+              <div className="flex flex-wrap gap-3">
+                {images.map((storageId, index) => (
+                  <SortableImage
+                    key={storageId}
+                    storageId={storageId}
+                    onRemove={() => handleRemove(index)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </>
       )}
 
       {/* Drop zone */}
