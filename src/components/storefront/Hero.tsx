@@ -74,7 +74,7 @@ export const Hero: React.FC<HeroProps> = ({ onViewProduct, featuredProduct }) =>
         <div className="absolute top-10 right-10 md:right-20">
             <div className="relative">
                 <div className="absolute inset-0 bg-mv-red blur-lg opacity-20 rounded-full"></div>
-                <div className="relative border border-gray-300 bg-white/50 backdrop-blur-md rounded-full px-4 py-2 font-script text-mv-red transform rotate-12">
+                <div className="relative border border-gray-300 bg-white/50 backdrop-blur-md rounded-full px-4 py-2 font-script text-[#eba4e5] transform rotate-12">
                    Boutique MV
                 </div>
             </div>

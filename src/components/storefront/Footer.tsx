@@ -24,11 +24,11 @@ export const Footer: React.FC = () => {
   const social = { ...SOCIAL_DEFAULTS, ...(socialContent ?? {}) };
 
   return (
-    <footer className="bg-[#181818] text-[#9A9A9A] py-16 px-6 md:px-12 mt-auto">
+    <footer className="bg-[#241B2D] text-[#9A9A9A] py-16 px-6 md:px-12 mt-auto">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Brand Section */}
         <div className="flex flex-col gap-6">
-          <h2 className="font-script text-4xl text-mv-red">Boutique MV</h2>
+          <h2 className="font-script text-4xl text-[#eba4e5]">Boutique MV</h2>
           <div className="flex flex-col gap-1">
             <p className="font-serif text-lg text-white">{contact.tagline}</p>
             <p className="font-sans text-sm">{contact.location}</p>

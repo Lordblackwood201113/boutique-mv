@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onGoHome,
         {/* Logo - Centered on mobile, Left on desktop */}
         <div
           onClick={onGoHome}
-          className="font-script text-2xl md:text-3xl text-mv-red cursor-pointer select-none whitespace-nowrap absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:left-auto"
+          className="font-script text-2xl md:text-3xl text-[#eba4e5] cursor-pointer select-none whitespace-nowrap absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:left-auto"
         >
           Boutique MV
         </div>
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ cartCount, onOpenCart, onGoHome,
       {/* Mobile Menu Overlay */}
       <div className={`fixed inset-0 z-50 bg-mv-cream transition-transform duration-300 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden flex flex-col`}>
          <div className="flex justify-between items-center p-6">
-            <span className="font-script text-3xl text-mv-red">Boutique MV</span>
+            <span className="font-script text-3xl text-[#eba4e5]">Boutique MV</span>
             <button onClick={toggleMobileMenu}>
               <X size={24} />
             </button>
