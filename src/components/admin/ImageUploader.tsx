@@ -26,7 +26,8 @@ function ImagePreview({ storageId, onRemove }: { storageId: string; onRemove: ()
       <button
         type="button"
         onClick={onRemove}
-        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Supprimer cette image"
+        className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition-colors"
       >
         <X size={12} />
       </button>

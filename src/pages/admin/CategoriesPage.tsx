@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
-import { Plus, Pencil, Trash2, Check, X, FolderOpen } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, FolderOpen, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button, ConfirmModal, SkeletonTable } from '@/src/components/ui';
 
 export default function CategoriesPage() {
@@ -10,6 +10,7 @@ export default function CategoriesPage() {
   const createCategory = useMutation(api.categories.create);
   const updateCategory = useMutation(api.categories.update);
   const removeCategory = useMutation(api.categories.remove);
+  const moveCategory = useMutation(api.categories.move);
 
   // New category
   const [newName, setNewName] = useState('');
@@ -95,6 +96,15 @@ export default function CategoriesPage() {
     setEditName('');
   };
 
+  const handleMove = async (id: Id<'categories'>, direction: 'up' | 'down') => {
+    try {
+      await moveCategory({ id, direction });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erreur lors du déplacement';
+      showToast(message, 'error');
+    }
+  };
+
   if (categories === undefined) {
     return (
       <div className="space-y-6">
@@ -165,7 +175,7 @@ export default function CategoriesPage() {
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat) => (
+              {categories.map((cat, index) => (
                 <tr
                   key={cat._id}
                   className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
@@ -217,6 +227,22 @@ export default function CategoriesPage() {
                   {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => handleMove(cat._id, 'up')}
+                        disabled={index === 0}
+                        className="p-2 text-gray-400 hover:text-mv-black rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        title="Monter"
+                      >
+                        <ArrowUp size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleMove(cat._id, 'down')}
+                        disabled={index === categories.length - 1}
+                        className="p-2 text-gray-400 hover:text-mv-black rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                        title="Descendre"
+                      >
+                        <ArrowDown size={16} />
+                      </button>
                       <button
                         onClick={() => startEdit(cat._id, cat.name)}
                         className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"

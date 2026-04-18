@@ -15,15 +15,27 @@ function slugify(name: string): string {
 
 // ─── Public Queries ────────────────────────────────────────────────
 
-/** Liste de toutes les catégories */
+type CategoryDoc = { order?: number; _creationTime: number };
+
+function sortByOrder<T extends CategoryDoc>(categories: T[]): T[] {
+  return [...categories].sort((a, b) => {
+    const aOrder = a.order ?? Number.MAX_SAFE_INTEGER;
+    const bOrder = b.order ?? Number.MAX_SAFE_INTEGER;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return a._creationTime - b._creationTime;
+  });
+}
+
+/** Liste de toutes les catégories (triées) */
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("categories").collect();
+    const categories = await ctx.db.query("categories").collect();
+    return sortByOrder(categories);
   },
 });
 
-/** Liste des catégories avec nombre de produits (admin) */
+/** Liste des catégories avec nombre de produits (admin, triées) */
 export const listAdmin = query({
   args: {},
   handler: async (ctx) => {
@@ -38,7 +50,7 @@ export const listAdmin = query({
         return { ...cat, productCount: products.length };
       })
     );
-    return enriched;
+    return sortByOrder(enriched);
   },
 });
 
@@ -118,6 +130,35 @@ export const update = mutation({
 
     await ctx.db.patch(args.id, updates);
     return args.id;
+  },
+});
+
+/** Déplacer une catégorie d'un cran vers le haut ou le bas dans l'ordre d'affichage */
+export const move = mutation({
+  args: {
+    id: v.id("categories"),
+    direction: v.union(v.literal("up"), v.literal("down")),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
+    const all = await ctx.db.query("categories").collect();
+    const sorted = sortByOrder(all);
+
+    const index = sorted.findIndex((c) => c._id === args.id);
+    if (index === -1) throw new Error("Catégorie introuvable.");
+
+    const swapIndex = args.direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= sorted.length) return;
+
+    const reordered = [...sorted];
+    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+
+    await Promise.all(
+      reordered.map((cat, i) =>
+        cat.order === i ? null : ctx.db.patch(cat._id, { order: i })
+      )
+    );
   },
 });
 
