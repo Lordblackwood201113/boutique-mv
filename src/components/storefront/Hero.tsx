@@ -33,7 +33,10 @@ export const Hero: React.FC<HeroProps> = ({ onViewProduct, featuredProduct }) =>
     <section className="min-h-screen pt-24 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-0">
 
       {/* Left Content */}
-      <div className="flex-1 z-10 flex flex-col items-start">
+      <div
+        className={`flex-1 z-10 flex flex-col items-start ${isLoading ? 'opacity-0' : 'opacity-100 animate-fade-in'}`}
+        aria-busy={isLoading}
+      >
         <span className="font-sans text-xs tracking-[0.2em] text-gray-400 uppercase mb-4 block">{content.subtitle}</span>
 
         {/* Mixed Typography Title */}
@@ -69,7 +72,10 @@ export const Hero: React.FC<HeroProps> = ({ onViewProduct, featuredProduct }) =>
         </div>
 
         {/* Floating Quote Card */}
-        <div className="absolute -bottom-6 left-10 md:left-0 bg-white p-6 shadow-xl max-w-xs animate-bounce-slow">
+        <div
+          className={`absolute -bottom-6 left-10 md:left-0 bg-white p-6 shadow-xl max-w-xs animate-bounce-slow ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          aria-busy={isLoading}
+        >
            <p className="font-serif italic text-lg text-mv-black mb-2">{content.quote}</p>
         </div>
 
